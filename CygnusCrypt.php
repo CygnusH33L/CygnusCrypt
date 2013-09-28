@@ -2,7 +2,7 @@
 ################################################################################
 ################################################################################
 ##########################                   ###################################
-##########################  CygnusCrypt v2.3 ###################################
+########################## CygnusCrypt v2.4  ###################################
 ##########################                   ###################################
 ################################################################################
 ################################################################################
@@ -153,7 +153,16 @@ class CygnusCrypt {
 	// create a secret pin number, this will be added to the encryption
 	// and also determines the letter step.
 	private function CreatePin($pin) {
-		$this->pin = $pin * 95781;
+		$this->Algo();
+		if(!is_numeric($pin)) {
+			$splitPin = str_split($pin);
+			foreach ($splitPin as $swap) {
+				if(in_array($swap, $this->letters)) {
+					$pin = array_search($swap, $this->letters);
+				}
+			}
+		}
+			$this->pin = $pin * 95781;
 		return $this;
 	}
 	
@@ -194,10 +203,10 @@ class CygnusCrypt {
 	// ****************************************************
 	public function Encrypt($pin, $encryptThis, $base, $htmlEncode) {
 		if(empty($encryptThis)) {
-			exit("<br /><br /><center>Please enter some text to encrypt! <A href=''>Try Again</a></center>");
+			exit("<br /><br /><span style='text-align:center; font-weight:bold;'>Please enter some text to encrypt.</span><br /><br />");
 		}
 		if(empty($pin)) {
-			exit("<br /><br /><center>A pin is required! <A href=''>Try Again</a></center>");
+			exit("<br /><br /><span style='text-align:center; font-weight:bold;'>A pin or password is required.</span></br /><br />");
 		}
 	
 		$this->CreatePin($pin);
@@ -223,10 +232,10 @@ class CygnusCrypt {
 	// ****************************************************
 	public function Decrypt($pin, $decryptThis, $base, $htmlEncode) {
 		if(empty($decryptThis)) {
-			exit("<br /><br /><center>Please enter some text to decrypt! <A href=''>Try Again</a></center>");
+			exit("<br /><br /><span style='text-align:center; font-weight:bold;'>Please enter some text to decrypt.</span><br /><br />");
 		}
 		if(empty($pin)) {
-			exit("<br /><br /><center>A pin is required! <A href=''>Try Again</a></center>");
+			exit("<br /><br /><span style='text-align:center; font-weight:bold;'>A pin or password is required.</span><br /><br />");
 		}
 		
 		$this->encrypt = $decryptThis;
@@ -243,7 +252,7 @@ class CygnusCrypt {
 			$this->encrypt = str_replace($this->pin, "", $this->encrypt);
 			$this->encrypt = $this->CygDecrypt($this->encrypt);
 		} else {
-			exit("<br /><br /><center>Incorrect Pin! <a href=''>Try again</a></center>");
+			exit("<br /><br /><span style='text-align:center; font-weight:bold;'>Incorrect Pin or Password.</span><br /><br />");
 		}
 		
 		$this->encrypt = $this->SplitDecrypt();
