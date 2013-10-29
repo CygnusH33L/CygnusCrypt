@@ -5,7 +5,7 @@
 <body>
 
 <?php
-require("CygnusCrypt v2.3.php");
+require("CygnusCrypt.php");
 
 // variables
 $data = "foobar";
@@ -29,9 +29,9 @@ $newEncryption->setSecrets($secretPin, $secret, $secret2, $secret3)->Encryption(
 $newEncryption->Encryption($pin, $data, $base64Encode, $HTMLEncode);
 
 // display encrypted data
-echo $newEncryption->encrypt;
+echo $newEncryption->output;
 
-$encryptedData = $newEncryption->encrypt;
+$encryptedData = $newEncryption->output;
 
 // create a new object or it will overwrite the encryption output
 $newDecryption = new CygnusCrypt;
@@ -43,7 +43,7 @@ $newDecryption->setSecrets($secretPin, $secret, $secret2, $secret3)->Decrypt($pi
 $newDecryption->Decrypt($pin, $encryptedData, $base64Encode, $HTMLEncode);
 
 // display decrypted data
-echo $newDecryption->encrypt;
+echo $newDecryption->output;
 
 ?>
 
