@@ -1,30 +1,34 @@
 <?php
 ################################################################################
 ################################################################################
-##########################                   ###################################
-##########################  CygnusCrypt v2.5 ###################################
-##########################                   ###################################
+#########################                     ##################################
+#########################  CygnusCrypt v2.5.1 ##################################
+#########################                     ##################################
 ################################################################################
 ################################################################################
+//
+// Author: CygnusH33L
+// Author wbesite: CygnusH33L.co.uk
+// Donations: Bitcoins 1DC7A7YZbanqJ4QgKFbbtjKiyLH93eWHiJ
+//
+################################################################################
+##########################     Description    ##################################
+################################################################################
+//
 // This class will encrypt/decrypt data that is passed to it. It has the ability 
 // to add base64 encoding for added protection and to encode the output strings
 // as HTML entities for use on HTML pages. The methods require a pin number
 // to be passed to it.
+//
 ################################################################################
 ##########################       Usage        ##################################
 ################################################################################
 //
 // $newEncryption = new CygnusCrypt;
-// ** set your own secrets **
-// $newEncryption->setSecrets($secretPin, $secret, $secret2, $secret3)->Encryption($pin, $data, $base64Encode, $HTMLEncode);
-// ** use the default secrets **
 // $newEncryption->Encrypt($Pin, $textToEncrypt, $baseEncoding, $HTMLEncode);
 // $newEncryption->encrypt;
 //
 // $decryption = new CygnusCrypt;
-// ** set your own secrets **
-// $newDecryption->setSecrets($secretPin, $secret, $secret2, $secret3)->Decrypt($pin, $encryptedData, $base64Encode, $HTMLEncode);
-// ** use the default secrets **
 // $decryption->Decrypt($Pin, $textToDecrypt, $baseEncoding, $HTMLEncode);
 // $decryption->encrypt;
 //
@@ -47,7 +51,7 @@ class CygnusCrypt {
 	private $random3;
 	private $secretSet;
 	
-	var $encrypt;
+	var $output;
 		
 	// *******************************************************
 	// **************** default secrets **********************
@@ -104,24 +108,28 @@ class CygnusCrypt {
 	// *******************************************************
 	// *************** Split and Encrypt *********************
 	// *******************************************************
+	// Split the string into chuncks and scramble characters
+	// then join string
 	private function SplitCrypt () {
-		$length = strlen($this->encrypt);
+		$length = strlen($this->output);
 		$splitBy = round($length / 4);
-		$chunks = str_split($this->encrypt, $splitBy);
+		$chunks = str_split($this->output, $splitBy);
 		foreach($chunks as $chunk) {
 			$chunk = $this->CygEncrypt($chunk);	
 		}
-		$this->encrypt = join($chunks, "");
-		$this->encrypt = $this->encrypt.$this->random.$splitBy.$this->random2;
-		return $this->encrypt;		
+		$this->output = join($chunks, "");
+		$this->output = $this->output.$this->random.$splitBy.$this->random2;
+		return $this->output;		
 	}
 	
 	// *******************************************************
 	// ************** Decrypt and join ***********************
 	// *******************************************************
+	// Split string into chuncks and unscramble chunks
+	// then join string
 	private function SplitDecrypt() {
 		$splitBy = 0;
-		if(preg_match_all('/$this->random(.*)$this->random2/U', $this->encrypt, $match)) {
+		if(preg_match_all('/$this->random(.*)$this->random2/U', $this->output, $match)) {
 			$splitBy = $match[0];	
 		}
 		$splitBy = str_replace($this->random, "", $splitBy[0]);
@@ -130,19 +138,20 @@ class CygnusCrypt {
 		if($splitBy == 0) {
 			$splitBy = 1;
 		}
-		$this->encrypt = preg_replace("/$this->random(.*)$this->random2/U", "", $this->encrypt);
-		$length = strlen($this->encrypt);
-		$chunks = str_split($this->encrypt, $splitBy);
+		$this->output = preg_replace("/$this->random(.*)$this->random2/U", "", $this->output);
+		$length = strlen($this->output);
+		$chunks = str_split($this->output, $splitBy);
 		foreach($chunks as $chunk) {
 			$chunk = $this->CygDecrypt($chunk);
 		}
-		$this->encrypt = join($chunks, "");
-		return $this->encrypt;			
+		$this->output = join($chunks, "");
+		return $this->output;			
 	}
 	
 	// *******************************************************
 	// ******* perform character step (encrypt data) *********
 	// *******************************************************
+	// Scramble passed string
 	private function CygEncrypt($encrypt) {
 		$this->Algo();
 		$encrypt = str_split($encrypt);
@@ -164,6 +173,7 @@ class CygnusCrypt {
 	// *******************************************************
 	// ******* perform character step (encrypt data) *********
 	// *******************************************************
+	// unscramble passed string
 	private function CygDecrypt($encrypt) {
 		$this->Algo();
 		$encrypt = str_split($encrypt);
@@ -189,7 +199,7 @@ class CygnusCrypt {
 	// **************** create pin *************************
 	// *****************************************************
 	// create a secret pin number, this will be added to the encryption
-	// and also determines the letter step.
+	// and also determines the letter step (scramble).
 	private function CreatePin($pin) {
 		$this->Algo();
 		if(!is_numeric($pin)) {
@@ -212,16 +222,16 @@ class CygnusCrypt {
 	## ** Attention, this is no longer used for a pin check, it now
 	## ** only adds an extra layer to the encryption
 	private function PinUsed() {
-		$this->encrypt = str_split($this->encrypt);
-		$length = count($this->encrypt);
+		$this->output = str_split($this->output);
+		$length = count($this->output);
 		$randPosition = rand(0, $length);
 		// add check to stop undefined offset error
 		if($randPosition == $length) {
 			$randPosition = $randPosition - 1;
 		}
-		$this->encrypt[$randPosition] = $this->random3.$this->encrypt[$randPosition];
-		$this->encrypt = join($this->encrypt, "");
-		return $this->encrypt;
+		$this->output[$randPosition] = $this->random3.$this->output[$randPosition];
+		$this->output = join($this->output, "");
+		return $this->output;
 	}
 	
 	// ****************************************************
@@ -229,10 +239,10 @@ class CygnusCrypt {
 	// ****************************************************
 	// fucntion to add pin to encrypted data
 	private function PinEncrypt() {
-		$this->encrypt = $this->CygEncrypt($this->encrypt);
-		$this->encrypt = $this->pin.$this->encrypt;
-		$this->encrypt = base64_encode($this->encrypt);
-		$this->encrypt = $this->PinUsed();
+		$this->output = $this->CygEncrypt($this->output);
+		$this->output = $this->pin.$this->output;
+		$this->output = base64_encode($this->output);
+		$this->output = $this->PinUsed();
 		return $this;
 	}
 	
@@ -253,20 +263,20 @@ class CygnusCrypt {
 	
 		$this->CreatePin($pin);
 		$this->Step();
-		$this->encrypt = $encryptThis;
-		$this->encrypt = $this->SplitCrypt();
+		$this->output = $encryptThis;
+		$this->output = $this->SplitCrypt();
 		
 		$this->PinEncrypt();
 		
-		$this->encrypt = $this->CygEncrypt($this->encrypt);
+		$this->output = $this->CygEncrypt($this->output);
 		if($base == "1") {
-			$this->encrypt = base64_encode($this->encrypt);	
+			$this->output = base64_encode($this->output);	
 		}
 		
 		if($htmlEncode == "1") {
-			$this->encrypt = htmlentities($this->encrypt);
+			$this->output = htmlentities($this->output);
 		}
-		return $this->encrypt;
+		return $this->output;
 	}
 	
 	// ****************************************************
@@ -284,29 +294,29 @@ class CygnusCrypt {
 			$this->setSecrets("95781", "cucuegjs", "ufwhcjsh", "sdgHJDgsdf");
 		}
 		
-		$this->encrypt = $decryptThis;
+		$this->output = $decryptThis;
 		if($base == "1") {
-			$this->encrypt = base64_decode($this->encrypt);
+			$this->output = base64_decode($this->output);
 		}
 		$this->CreatePin($pin);
 		$this->Step();
-		$this->encrypt = $this->CygDecrypt($this->encrypt);
+		$this->output = $this->CygDecrypt($this->output);
 		
-		if(strpos("x".$this->encrypt, $this->random3) !== false) {
-			$this->encrypt = preg_replace("/$this->random3/", "", $this->encrypt, 1);
-			$this->encrypt = base64_decode($this->encrypt);
-			$this->encrypt = str_replace($this->pin, "", $this->encrypt);
-			$this->encrypt = $this->CygDecrypt($this->encrypt);
+		if(strpos("x".$this->output, $this->random3) !== false) {
+			$this->output = preg_replace("/$this->random3/", "", $this->output, 1);
+			$this->output = base64_decode($this->output);
+			$this->output = str_replace($this->pin, "", $this->output);
+			$this->output = $this->CygDecrypt($this->output);
 		} else {
 			exit("<br /><br /><span style='text-align:center; font-weight:bold;'>Incorrect Pin or Password.</span><br /><br />");
 		}
 		
-		$this->encrypt = $this->SplitDecrypt();
+		$this->output = $this->SplitDecrypt();
 		
 		if($htmlEncode == "1") {
-			$this->encrypt = htmlentities($this->encrypt);
+			$this->output = htmlentities($this->output);
 		}
-		return $this->encrypt;
+		return $this->output;
 	}
 
 } // end class
