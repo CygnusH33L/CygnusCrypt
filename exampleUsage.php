@@ -23,10 +23,10 @@ $secret3 = "fhjs8ahjf";
 $newEncryption = new CygnusCrypt;
 
 // add your own secrets (returns object so you can chain methods)
-$newEncryption->setSecrets($secretPin, $secret, $secret2, $secret3)->Encryption($pin, $data, $base64Encode, $HTMLEncode);
+$newEncryption->setSecrets($secretPin, $secret, $secret2, $secret3)->Encrypt($pin, $data, $base64Encode, $HTMLEncode);
 
 // encrypt the data (if you don't set your own secrets they will be set for you.)
-$newEncryption->Encryption($pin, $data, $base64Encode, $HTMLEncode);
+$newEncryption->Encrypt($pin, $data, $base64Encode, $HTMLEncode);
 
 // display encrypted data
 echo $newEncryption->output;
