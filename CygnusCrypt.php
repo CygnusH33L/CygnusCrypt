@@ -16,7 +16,7 @@
 ################################################################################
 //
 // This class will encrypt/decrypt data that is passed to it. It has the ability 
-// to add base64 encoding for added protection and to encode the output strings
+// to add base64 encoding and/or to encode the output strings
 // as HTML entities for use on HTML pages. The methods require a pin number
 // to be passed to it.
 //
